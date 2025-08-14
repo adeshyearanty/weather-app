@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import {
   Search,
@@ -14,9 +13,6 @@ import {
   Thermometer,
   Gauge,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 
 interface WeatherData {
   name: string;
@@ -71,7 +67,7 @@ export default function WeatherPage() {
     setError("");
 
     try {
-      const apiKey = "14d2a6eeac807c762555d2c958bc0f12";
+      const apiKey = process.env.NEXT_PUBLIC_API_KEY;
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`
       );
@@ -111,18 +107,26 @@ export default function WeatherPage() {
 
         {/* Floating particles */}
         <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-white rounded-full opacity-30 animate-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${3 + Math.random() * 4}s`,
-              }}
-            />
-          ))}
+          {[...Array(20)].map((_, i) => {
+            // Use deterministic values based on index to avoid hydration mismatch
+            const left = (i * 5.5) % 100;
+            const top = (i * 7.3) % 100;
+            const delay = (i * 0.3) % 5;
+            const duration = 3 + (i * 0.2) % 4;
+            
+            return (
+              <div
+                key={i}
+                className="absolute w-2 h-2 bg-white rounded-full opacity-30 animate-float"
+                style={{
+                  left: `${left}%`,
+                  top: `${top}%`,
+                  animationDelay: `${delay}s`,
+                  animationDuration: `${duration}s`,
+                }}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -140,29 +144,29 @@ export default function WeatherPage() {
           </div>
 
           {/* Search Section */}
-          <Card className="bg-white/10 backdrop-blur-md border-white/20 mb-8">
-            <CardContent className="p-6">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg mb-8">
+            <div className="p-6">
               <div className="flex gap-3">
-                <Input
+                <input
                   type="text"
                   placeholder="Enter city name..."
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:border-white/50"
+                  className="flex-1 px-3 py-2 bg-white/20 border border-white/30 rounded-md text-white placeholder:text-white/70 focus:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/25"
                   disabled={loading}
                 />
-                <Button
+                <button
                   onClick={fetchWeather}
                   disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2 rounded-md transition-colors duration-200 flex items-center justify-center"
                 >
                   {loading ? (
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <Search className="w-4 h-4" />
                   )}
-                </Button>
+                </button>
               </div>
 
               {error && (
@@ -171,13 +175,13 @@ export default function WeatherPage() {
                   {error}
                 </p>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Weather Display */}
           {weatherData && (
-            <Card className="bg-white/10 backdrop-blur-md border-white/20">
-              <CardContent className="p-8">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg">
+              <div className="p-8">
                 {/* Location and Main Weather */}
                 <div className="text-center mb-8">
                   <h2 className="text-2xl font-semibold text-white mb-2">
@@ -230,8 +234,8 @@ export default function WeatherPage() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Footer */}
